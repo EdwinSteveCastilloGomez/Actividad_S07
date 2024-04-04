@@ -1,0 +1,233 @@
+﻿
+@page "/"
+@using ListaBlazorApp.Models
+@using ListaBlazorApp.Services
+
+<PageTitle>Home</PageTitle>
+<h2>Bienvenidos! pagina para insertar elemenos en una Lista</h2>
+
+<label>Ingrese el dato</label>
+<input type="text" class="form-control mb-2" @bind="Informacion" />
+
+<label>Ingrese la posicion o dato de referencia para la acción</label>
+<input type="text" class="form-control mb-2" @bind="ValorNodoExistente" />
+
+<label>Ingrese el dato a buscar</label>
+<input type="text" class="form-control mb-2" @bind="InfoBuscada" />
+
+<button class="btn btn-primary" @onclick="AgregarNodoInicio">
+    Agregar Nodo Al Inicio
+</button>
+
+<button class="btn btn-success" @onclick="AgregarNodoFinal">
+    Agregar Nodo Al final
+</button>
+
+<button class="btn btn-warning" @onclick="AgregarNodoAntesDe">
+    Agregar Nodo Antes De
+</button>
+
+<button class="btn btn-info" @onclick="AgregarNodoDespuesDe">
+    Agregar Nodo Después De
+</button>
+
+<button class="btn btn-info" @onclick="HacerRecorrido">
+    Rcorrido de lista 
+</button>
+<button class="btn btn-danger" @onclick="OrdenarLista">
+    Ordenar Lista
+</button>
+<p>
+    Lista enlazada (recursiva):
+    @if (!string.IsNullOrEmpty(ListaRecursiva))
+    {
+       @ListaRecursiva
+    }
+</p>
+
+<hr>
+
+<button class="btn btn-secondary" @onclick="AgregarNodoEnPosicion">
+    Agregar Nodo En Posición
+</button>
+
+<button class="btn btn-secondary" @onclick="AgregarAntesDePosicion">
+    Agregar Nodo Antes De Posición
+</button>
+
+<button class="btn btn-secondary" @onclick="AgregarDespuesDePosicion">
+    Agregar Nodo Despues De Posición
+</button>
+
+<button class="btn btn-success" @onclick="BuscarElemento">
+    Buscar elemento
+</button>
+<p>
+    elemento encontrado:
+    @if (NodoBuscado != null)
+    {        
+        @NodoBuscado       
+    }
+</p>
+
+<p>
+    <label>Opciones de eliminaión</label>
+    <hr>
+    <button class="btn btn-danger" @onclick="EliminarNodoInicio">
+        Eliminar Nodo Al Inicio
+    </button>
+
+    <button class="btn btn-danger" @onclick="EliminarNodoFinal">
+        Eliminar Nodo Al final
+    </button>
+
+    <button class="btn btn-danger" @onclick="EliminarNodoAntesDe">
+        Eliminar Nodo Antes De
+    </button>
+
+    <button class="btn btn-danger" @onclick="EliminarNodoDespuesDe">
+        Eliminar Nodo Después De
+    </button>
+
+    <button class="btn btn-danger" @onclick="EliminarNodoEnPosicion">
+        Eliminar Nodo En Posición
+    </button>
+</p>
+
+
+<p class="bg-dark text-white">@Mensaje</p>
+
+<hr />
+
+<ul>
+    @foreach (var item in Lista)
+    {
+        <li>@item</li>
+    }
+</ul>
+
+@code {
+    public string Informacion { get; set; }
+    public string ValorNodoExistente { get; set; }
+    public Nodo NodoBuscado { get; set; } // Propiedad para almacenar el nodo buscado
+    public string InfoBuscada { get; set; } // Propiedad para almacenar la información buscada
+    string ListaRecursiva { get; set; } //propiedad para guardar la lista de valores encontrados en el recorrido recursivo.
+    public ListaEnlazadaSimple Lista { get; set; } = new();
+    string Mensaje = string.Empty;
+
+    void AgregarNodoFinal()
+    {
+        Nodo nuevoNodo = new Nodo(Informacion);
+        Mensaje = Lista.AgregarNodoAlFinal(nuevoNodo);
+        Informacion = string.Empty;
+    }
+
+    void AgregarNodoInicio()
+    {
+        Nodo nuevoNodo = new Nodo(Informacion);
+        Mensaje = Lista.AgregarNodoAlInicio(nuevoNodo);
+        Informacion = string.Empty;
+    }
+
+    void AgregarNodoAntesDe()
+    {
+        Nodo nuevoNodo = new Nodo(Informacion);
+        Nodo nodoExistente = ObtenerNodoExistente(ValorNodoExistente);
+        if (nodoExistente != null)
+            Mensaje = Lista.AgregarAntesDe(nodoExistente.Informacion, nuevoNodo);
+        else
+            Mensaje = $"No se encontró un nodo con el valor '{ValorNodoExistente}'";
+        Informacion = string.Empty;
+    }
+
+    void AgregarNodoDespuesDe()
+    {
+        Nodo nuevoNodo = new Nodo(Informacion);
+        Nodo nodoExistente = ObtenerNodoExistente(ValorNodoExistente);
+        if (nodoExistente != null)
+            Mensaje = Lista.AgregarNodoDespuesDe(nodoExistente, nuevoNodo);
+        else
+            Mensaje = $"No se encontró un nodo con el valor '{ValorNodoExistente}'";
+        Informacion = string.Empty;
+    }
+
+    void AgregarNodoEnPosicion()
+    {
+        Nodo nuevoNodo = new Nodo(Informacion);
+        Mensaje = Lista.AgregarEnPosicion(Convert.ToInt32(ValorNodoExistente), nuevoNodo); // Cambia el número de posición según necesites
+        Informacion = string.Empty;
+    }
+
+    void AgregarAntesDePosicion()
+    {
+        Nodo nuevoNodo = new Nodo(Informacion);
+        Mensaje = Lista.InsertarAntesDePosicion(Convert.ToInt32(ValorNodoExistente), nuevoNodo); // Cambia el número de posición según necesites
+        Informacion = string.Empty;
+    }
+
+    void AgregarDespuesDePosicion()
+    {
+        Nodo nuevoNodo = new Nodo(Informacion);
+        Mensaje = Lista.InsertarDespuesDePosicion(Convert.ToInt32(ValorNodoExistente), nuevoNodo); // Cambia el número de posición según necesites
+        Informacion = string.Empty;
+    }
+
+    void EliminarNodoInicio()
+    {
+        Mensaje = Lista.EliminarNodoAlInicio();
+    }
+
+    void EliminarNodoFinal()
+    {
+        Mensaje = Lista.EliminarNodoAlFinal();
+    }
+
+    void EliminarNodoAntesDe()
+    {
+        Mensaje = Lista.EliminarNodoAntesDe(ValorNodoExistente);
+    }
+
+    void EliminarNodoDespuesDe()
+    {
+        Mensaje = Lista.EliminarNodoDespuesDe(ValorNodoExistente);
+    }
+
+    void EliminarNodoEnPosicion()
+    {
+        Mensaje = Lista.EliminarNodoEnPosicion(Convert.ToInt32(ValorNodoExistente));
+    }
+
+    void OrdenarLista()
+    {
+        Lista.OrdenarLista();
+        Mensaje = "Lista ordenada correctamente.";
+    }
+
+    void HacerRecorrido()
+    {
+        ListaRecursiva = Lista.RecorrerRecursivo(Lista.PrimerNodo);
+    }
+
+    void BuscarElemento()
+    {
+        NodoBuscado = Lista.BusquedaEspecifica(InfoBuscada);
+    }
+
+    // Método para obtener el nodo existente con un valor específico
+    Nodo ObtenerNodoExistente(object valor)
+    {
+        foreach (var item in Lista)
+        {
+            // Convertir explícitamente el objeto a tipo Nodo
+            Nodo nodo = (Nodo)item;
+
+            // Verificar si el valor coincide con la información del nodo
+            if (nodo.Informacion.ToString() == valor.ToString())
+            {
+                return nodo;
+            }
+        }
+        return null;
+    }
+    
+}
